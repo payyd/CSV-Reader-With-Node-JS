@@ -1,0 +1,218 @@
+<%- include('_header'); -%>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <h1>CeADAR Technical Challenge</h1>
+  <!-- CSS STYLING -->
+  <style>
+    h1{
+      text-align: center;
+    }
+    table {
+      border-collapse: collapse;
+      border-radius: 5px;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      font-family: "Serif", sans-serif;
+      font-weight: bold;
+      font-size: 14px;
+    }
+  
+    th {
+      background: #0000FF;
+      color: #ffffff;
+      text-align: left;
+    }
+    
+    th,
+    td {
+      padding: 10px 20px;
+    }
+    
+    tr:nth-child(even) {
+      background: #eeeeee;
+    }
+    </style>
+        <title>Software Engineer Position @ CeADAR Technical Challenge</title>
+    </head>
+    <body>
+      
+        <input type="file" id="csvFileInput" style="padding-bottom: 15px">
+        <table id="csvRoot"></table>
+      
+      <script src="https://cdn.jsdelivr.net/npm/papaparse@5.2.0/papaparse.min.js"></script>
+    </body>
+
+      <script>
+        class TableCsv {
+  /**
+   * @param {HTMLTableElement} root Will display the CSV data.
+   */
+  constructor(root) {
+    this.root = root;
+  }
+
+  /**
+   * Clears existing data in the table and replaces it with new data.
+   *
+   * @param {string[][]} data 2D array used as table data
+   * @param {string[]} headerColumns List of headings to be used based on csv file
+   */
+  update(data, headerColumns = []) {
+    this.clear();
+    this.setHeader(headerColumns);
+    this.setBody(data);
+  }
+
+  /**
+   * Function which clears all contents of the table by making the string = ""
+   */
+  clear() {
+    this.root.innerHTML = "";
+  }
+
+  /**
+   * Sets the table header.
+   *
+   * @param {string[]} headerColumns List of headings
+   */
+  setHeader(headerColumns) {
+    this.root.insertAdjacentHTML(
+      "afterbegin",
+      `
+            <thead>
+                <tr>
+                    ${headerColumns.map((text) => `<th>${text}</th>`).join("")}
+                </tr>
+            </thead>
+        `
+    );
+  }
+
+  /**
+   * Sets the table body.
+   *
+   * @param {string[][]} data 2D array used as table data
+   */
+  setBody(data) {
+    const rowsHtml = data.map((row) => {
+      return `
+                <tr>
+                    ${row.map((text) => `<td>${text}</td>`).join("")}
+                </tr>
+            `;
+    });
+
+    this.root.insertAdjacentHTML(
+      "beforeend",
+      `
+            <tbody>
+                ${rowsHtml.join("")}
+            </tbody>
+        `
+    );
+  }
+}
+
+const tableRoot = document.querySelector("#csvRoot");
+const csvFileInput = document.querySelector("#csvFileInput");
+const tableCsv = new TableCsv(tableRoot);
+
+csvFileInput.addEventListener("change", (e) => {
+  Papa.parse(csvFileInput.files[0], {
+    delimiter: ",",
+    skipEmptyLines: true,
+    complete: (results) => {
+      tableCsv.update(results.data.slice(1), results.data[0]);
+    }
+  });
+});
+
+
+
+/*
+First attempt, did not work for csv files which were seperated by \n
+function Upload() {
+        var fileUpload = document.getElementById("fileUpload");
+            if (typeof (FileReader) != "undefined") {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var table = document.createElement("table");
+                    var rows = e.target.result.split("\n");
+                    for (var i = 0; i < rows.length; i++) {
+                        var cells = rows[i].split(",");
+                        if (cells.length > 1) {
+                            var row = table.insertRow(-1);
+                            for (var j = 0; j < cells.length; j++) {
+                                var cell = row.insertCell(-1);
+                                cell.innerHTML = cells[j];
+                            }
+                        }
+                    }
+                    var dvCSV = document.getElementById("dvCSV");
+                    dvCSV.innerHTML = "";
+                    dvCSV.appendChild(table);
+                    console.log(fileUpload);
+                    
+                }
+                reader.readAsText(fileUpload.files[0]);
+            } else {
+                alert("Error.");
+        }
+    }
+    
+    Originally attempted to store the inputted csv file as a 2-d array. However errors would occur
+    when attempting to iterate through the array to store the array as a html table
+
+    function csvToArray(str, delimiter = ",") {
+      const headers = str.slice(0, str.indexOf("\n")).split(delimiter);
+      const rows = str.slice(str.indexOf("\n") + 1).split("\n");
+      const arr = rows.map(function (row) {
+        const values = row.split(delimiter);
+        const el = headers.reduce(function (object, header, index) {
+          object[header] = values[index];
+          return object;
+        }, {});
+        return el;
+      });
+      // return the array
+      return arr;
+    }
+
+    myForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const input = csvFile.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const text = e.target.result;
+        var data = csvToArray(text);
+        table = document.getElementById("table");
+        //console.table(data);
+        //console.log(typeof data);
+        //console.log(Array.isArray(data));
+        /*let table = document.createElement('table');
+
+        for (let row of Object.keys(data)) {
+            //Insert a new row element into the table element
+            table.insertRow();
+                for (let cell of row) {
+                //While iterating over the index(cell)
+                //insert a cell into the table element
+                    let newCell = table.rows[table.rows.length - 1].insertCell();
+                //add text to the created cell element
+                    newCell.textContent = cell;
+                }
+        }
+
+        //document.body.appendChild(table);
+        
+        //document.write(JSON.stringify(data).split(",").join("<br />"));
+
+        //createTable(data);
+      
+        reader.readAsText(input);
+    });
+    */
+  </script>
+<%- include('_footer'); -%>
